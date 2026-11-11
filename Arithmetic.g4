@@ -4,8 +4,11 @@ start:
 	'\n'* Expression EOF;
 
 Expression:
-	Assignment ' '* '=' ' '* Num Indents Expression 
+	Assignment ' '* Operation ' '* Num Indents Expression 
 	| ;
+
+Operation:
+	('+' | '-' | '*' | '/' | '%' | '') '=';
 
 Assignment:
 	[a-zA-Z][a-zA-Z0-9]*;
