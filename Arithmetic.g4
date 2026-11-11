@@ -4,18 +4,23 @@ start:
 	'\n'* Expression EOF;
 
 Expression:
-	Assignment ' '* Operation ' '* Num Indents Expression 
+	Variable ' '* Operation '=' ' '* Num Math Indents Expression 
+	| ;
+
+Math:
+	' '* (Operation | '%') ' '* Math
 	| ;
 
 Operation:
-	('+' | '-' | '*' | '/' | '%' | '') '=';
+	('+' | '-' | '*' | '/' | '') ;
 
-Assignment:
+Variable:
 	[a-zA-Z][a-zA-Z0-9]*;
 
 Num:
 	0
-	| [1-9] ('_'* [0-9] '_'*)*;
+	| [1-9] ('_'* [0-9] '_'*)*
+	| Variable;
 
 Indents:
 	'\n' Indents
