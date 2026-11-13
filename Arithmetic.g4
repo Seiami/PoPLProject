@@ -55,8 +55,8 @@ list:
 	| '[' typelist ']';
 
 typelist:
-	space* type space*','space* typelist? space*
-	| space* type space* ;
+	space* type space*','space* typelist space*
+	| space* type space* ','? space*;
 
 indents:
 	Newline+ ;
