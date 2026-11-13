@@ -1,27 +1,65 @@
 grammar Arithmetic;
 
 start:
-	'\n'* Expression EOF;
+	Newline* expression EOF;
 
-Expression:
-	Variable ' '* Operation '=' ' '* Num Math Indents Expression 
+expression:
+	Variable space* '=' space* type indents expression
+	| Variable space* Operation? '=' space* num math? indents expression 
 	| ;
 
-Math:
-	' '* (Operation | '%') ' '* Math
-	| ;
+space:
+	' '
+	| '\t' ;
+
+math:
+	space* (Operation) space* num math
+	| space* (Operation) space* num ;
 
 Operation:
-	('+' | '-' | '*' | '/' | '') ;
+	('+' | '-' | '*' | '/' | '%') ;
+
+type:
+	Int
+	| Str
+	| Float
+	| Boolean
+	| list
+	| Variable ; 
+
+num:
+	'-'?Int
+	| '-'?Float 
+	| Variable ;
+
+Int:
+	'0'
+	| [1-9] ('_'? [0-9])* ;
+
+Str:
+	'"'[a-zA-Z0-9 ,?!;()]*'"' 
+	|'\''[a-zA-Z0-9 ,?!;()]*'\'' ;
+
+Float:
+	(Int | '0'*) '.' [0-9] ('_'? [0-9])* ;
+
+Boolean:
+	'True'
+	| 'False' ;
 
 Variable:
-	[a-zA-Z][a-zA-Z0-9]*;
+	[a-zA-Z_][a-zA-Z0-9_]*;
 
-Num:
-	0
-	| [1-9] ('_'* [0-9] '_'*)*
-	| Variable;
+list:
+	'[' space* ']'
+	| '[' typelist ']';
 
-Indents:
-	'\n' Indents
-	| '\n';
+typelist:
+	space* type space*','space* typelist? space*
+	| space* type space* ;
+
+indents:
+	Newline+ ;
+
+Newline:
+	'\n' ; 
