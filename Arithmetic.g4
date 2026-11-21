@@ -1,65 +1,73 @@
 grammar Arithmetic;
 
 start:
-	Newline* expression EOF;
+	next* unindented_statement EOF;
 
-expression:
-	Variable space* '=' space* type indents expression
-	| Variable space* Operation? '=' space* num math? indents expression 
-	| ;
+next: 
+    space* '\n';
 
-space:
-	' '
-	| '\t' ;
+space : 
+    ' ' | '\t';
 
-math:
-	space* (Operation) space* num math
-	| space* (Operation) space* num ;
+unindented_statement: 
+    if_statement (next+ unindented_statement)?
+    | var_assignment (next+ unindented_statement)?
+    | var_operation (next+ unindented_statement)?
+    | ;
+    
+var_assignment:
+    VARIABLE space* '=' space* (type | equation) next+
+    ;
+    
+var_operation:
+    VARIABLE space* math_operator '=' space* (number|VARIABLE|equation) next+
+    ;
 
-Operation:
-	('+' | '-' | '*' | '/' | '%') ;
+if_statement:
+    'if' equality space* ':' '\n' indented_statement next
+    (elif_statement next+)*
+    (else_statement next+)?
+    ;
 
-type:
-	Int
-	| Str
-	| Float
-	| Boolean
-	| list
-	| Variable ; 
+elif_statement:
+    'elif' equality space* ':' '\n' indented_statement next;
 
-num:
-	'-'?Int
-	| '-'?Float 
-	| Variable ;
+else_statement:
+    'else' equality space* ':' '\n' indented_statement next;
 
-Int:
-	'0'
-	| [1-9] ('_'? [0-9])* ;
+indented_statement:
+    '\t'var_assignment (next+ indented_statement)?
+    | '\t' var_operation (next+ indented_statement)?
+    ;
 
-Str:
-	'"'([a-zA-Z0-9 ,?!;()'] | '\\\'' | '\\"')*'"' 
-	|'\''([a-zA-Z0-9 ,?!;()"] | '\\\'' | '\\"')*'\'' ;
+type: 
+    VARIABLE
+    | BOOLEAN
+    | number
+    | STRING
+    | list
+    ;
 
-Float:
-	(Int | '0'*) '.' [0-9] ('_'? [0-9])* ;
+equality: '('? 'not'? type (comp_operator type)? ')'? (('and' | 'or') equality)?;
+    
+equation: number (math_operator number)*;
+    
+number: INT | FLOAT;
 
-Boolean:
-	'True'
-	| 'False' ;
+math_operator: ('+' | '-' | '*' | '/' | '%');
 
-Variable:
-	[a-zA-Z_][a-zA-Z0-9_]*;
+comp_operator: ('==' | '!=' | '<=' | '>=' | '<' | '>');
 
-list:
-	'[' space* ']'
-	| '[' typelist ']';
+INT: '-'?('0' | [1-9] [0-9_]*);
 
-typelist:
-	space* type space*','space* typelist space*
-	| space* type space* ','? space*;
+FLOAT: INT? '.' [0-9]*;
 
-indents:
-	Newline+ ;
+VARIABLE: [_a-zA-Z][_a-zA-Z0-9]*;
 
-Newline:
-	'\n' ; 
+BOOLEAN: 'True' | 'False';
+
+STRING: '"' ~["]* '"';
+
+list: '[' space* ']'
+    | '[' space* type space* (',' space* type space*)* ']'
+    ;
