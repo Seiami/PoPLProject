@@ -33,7 +33,7 @@ elif_statement:
     'elif' equality space* ':' '\n' indented_statement next;
 
 else_statement:
-    'else' equality space* ':' '\n' indented_statement next;
+    'else:' '\n' indented_statement next;
 
 indented_statement:
     '\t'var_assignment (next+ indented_statement)?
